@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="50%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#047857" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#grad)" />
+  <g filter="url(#shadow)" fill="#ffffff" transform="translate(106, 106) scale(0.58)">
+    <!-- Open Book -->
+    <path d="M256 160c-48-32-112-32-160-16v256c48-16 112-16 160 16 48-32 112-32 160-16V144c-48-16-112-16-160 16z" opacity="0.95"/>
+    <!-- Sprout / Stem -->
+    <path d="M256 190v180" stroke="#FBBF24" stroke-width="24" stroke-linecap="round"/>
+    <!-- Golden Star on top -->
+    <path d="M256 60l22 45 49 7-36 35 8 49-43-23-43 23 8-49-36-35 49-7z" fill="#FDE047"/>
+  </g>
+</svg>

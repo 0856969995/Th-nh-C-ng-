@@ -1,0 +1,142 @@
+{
+  "entities": {
+    "School": {
+      "title": "School",
+      "description": "Educational institution profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "code": { "type": "string", "maxLength": 50 },
+        "address": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "code", "createdAt"]
+    },
+    "Class": {
+      "title": "Class",
+      "description": "Classroom unit within a school",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "grade": { "type": "number" },
+        "teacherIds": { "type": "array" },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "schoolId", "name", "grade", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with role-based access",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 150 },
+        "displayName": { "type": "string", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["admin", "teacher", "student"] },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "totalStars": { "type": "number" },
+        "waterDrops": { "type": "number" },
+        "seedsCount": { "type": "number" },
+        "completedLessonIds": { "type": "array" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "email", "displayName", "role", "createdAt"]
+    },
+    "PreparationSheet": {
+      "title": "PreparationSheet",
+      "description": "Pre-class preparation sheet submitted by student",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 150 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "subjectId": { "type": "string", "maxLength": 50 },
+        "lessonId": { "type": "string", "maxLength": 100 },
+        "lessonTitle": { "type": "string", "maxLength": 200 },
+        "preClassNotes": { "type": "string", "maxLength": 2000 },
+        "keyQuestions": { "type": "string", "maxLength": 2000 },
+        "selfAssessment": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["draft", "submitted", "reviewed"] },
+        "score": { "type": "number" },
+        "teacherComment": { "type": "string", "maxLength": 1000 },
+        "offlineCreated": { "type": "boolean" },
+        "submittedAt": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "subjectId", "lessonId", "status", "createdAt"]
+    },
+    "QuizSubmission": {
+      "title": "QuizSubmission",
+      "description": "Quiz completion record with idempotency protection",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "idempotencyKey": { "type": "string", "maxLength": 200 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 150 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "subjectId": { "type": "string", "maxLength": 50 },
+        "lessonId": { "type": "string", "maxLength": 100 },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "firstTryCorrectCount": { "type": "number" },
+        "starsAwarded": { "type": "number" },
+        "waterAwarded": { "type": "number" },
+        "offlineCompleted": { "type": "boolean" },
+        "completedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "idempotencyKey", "userId", "subjectId", "lessonId", "score", "totalQuestions", "completedAt"]
+    },
+    "TeacherFeedback": {
+      "title": "TeacherFeedback",
+      "description": "Teacher review and feedback on student work",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sheetId": { "type": "string", "maxLength": 128 },
+        "teacherId": { "type": "string", "maxLength": 128 },
+        "teacherName": { "type": "string", "maxLength": 150 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "comment": { "type": "string", "maxLength": 1000 },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "sheetId", "teacherId", "studentId", "comment", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/schools/{schoolId}": {
+      "schema": "School",
+      "description": "Collection of schools"
+    },
+    "/classes/{classId}": {
+      "schema": "Class",
+      "description": "Collection of classes"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles with role and gamification stats"
+    },
+    "/preparation_sheets/{sheetId}": {
+      "schema": "PreparationSheet",
+      "description": "Pre-class preparation sheets for Math, KHTN, and English"
+    },
+    "/quiz_submissions/{submissionId}": {
+      "schema": "QuizSubmission",
+      "description": "Idempotent quiz submissions and rewards records"
+    },
+    "/teacher_feedbacks/{feedbackId}": {
+      "schema": "TeacherFeedback",
+      "description": "Teacher reviews and feedback for students"
+    }
+  }
+}

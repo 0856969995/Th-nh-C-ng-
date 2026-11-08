@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom scrollbars for clean educational app */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Compact and seamless KaTeX display margins for math textbook typography */
+.katex-display {
+  margin: 0.2em 0 !important;
+}
+.katex-display > .katex {
+  max-width: 100%;
+}
+.text-center .katex-display,
+.text-center .katex-display > .katex {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Ensure math formulas never display horizontal scrollbars on mobile */
+.math-formula-box {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.math-formula-box::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area padding for mobile home indicators */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+/* Crisp, clearly visible KaTeX fraction bar and proper typography */
+.katex .frac-line,
+.katex .katex-html .frac-line {
+  border-bottom-width: 1.5px !important;
+  border-bottom-style: solid !important;
+  border-bottom-color: currentColor !important;
+  opacity: 1 !important;
+  min-height: 1.5px !important;
+}
+
+.katex .mfrac {
+  padding: 0 0.15em !important;
+}
+

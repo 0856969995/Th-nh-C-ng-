@@ -1,0 +1,145 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'camlybui083@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isTeacher() {
+      return isAdmin() || (
+        isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher'
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Collections: Schools
+    match /schools/{schoolId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin() && isValidId(schoolId);
+    }
+
+    // Collections: Classes
+    match /classes/{classId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if (isAdmin() || isTeacher()) && isValidId(classId);
+    }
+
+    // Collections: Users
+    match /users/{userId} {
+      allow get: if isSignedIn() && (isOwner(userId) || isTeacher() || isAdmin());
+      allow list: if isSignedIn() && (isTeacher() || isAdmin());
+      allow create: if isSignedIn() && isValidId(userId) && (
+        (isOwner(userId) && (
+          (request.auth.token.email == 'camlybui083@gmail.com' && incoming().role == 'admin' && incoming().schoolId == 'school_main') ||
+          (incoming().role == 'student' && incoming().schoolId == 'school_main') ||
+          (incoming().role == 'teacher' && incoming().schoolId == 'school_main')
+        )) ||
+        isAdmin()
+      );
+      allow update: if (
+        (isOwner(userId) &&
+         incoming().id == existing().id &&
+         incoming().role == existing().role && // Prevent role tampering
+         incoming().schoolId == existing().schoolId &&
+         incoming().diff(existing()).affectedKeys().hasOnly([
+           'displayName', 'totalStars', 'waterDrops', 'seedsCount',
+           'completedLessonIds', 'schoolId', 'classId', 'className',
+           'updatedAt', 'localId', 'studentCode', 'mustChangePin'
+         ])) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Collections: Preparation Sheets
+    match /preparation_sheets/{sheetId} {
+      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isTeacher() || isAdmin());
+      allow list: if isSignedIn() && (
+        (resource.data.userId == request.auth.uid) || isTeacher() || isAdmin()
+      );
+      allow create: if isSignedIn() && isValidId(sheetId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().status in ['draft', 'submitted'];
+      allow update: if isSignedIn() && isValidId(sheetId) && (
+        (isOwner(existing().userId) &&
+         existing().status != 'reviewed' &&
+         incoming().userId == existing().userId &&
+         incoming().diff(existing()).affectedKeys().hasOnly([
+           'preClassNotes', 'keyQuestions', 'selfAssessment', 'status', 'submittedAt', 'updatedAt'
+         ])) ||
+        (isTeacher() &&
+         incoming().userId == existing().userId &&
+         incoming().diff(existing()).affectedKeys().hasOnly([
+           'score', 'teacherComment', 'status', 'updatedAt'
+         ])) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin() || (isOwner(existing().userId) && existing().status == 'draft');
+    }
+
+    // Collections: Quiz Submissions (Idempotent records)
+    match /quiz_submissions/{submissionId} {
+      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isTeacher() || isAdmin());
+      allow list: if isSignedIn() && (
+        (resource.data.userId == request.auth.uid) || isTeacher() || isAdmin()
+      );
+      allow create: if isSignedIn() && isValidId(submissionId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().idempotencyKey is string &&
+        incoming().score is number;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Collections: Teacher Feedback
+    match /teacher_feedbacks/{feedbackId} {
+      allow get: if isSignedIn() && (
+        isOwner(resource.data.studentId) ||
+        isOwner(resource.data.teacherId) ||
+        isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        (resource.data.studentId == request.auth.uid) ||
+        isTeacher() ||
+        isAdmin()
+      );
+      allow create: if isTeacher() && isValidId(feedbackId) &&
+        incoming().teacherId == request.auth.uid;
+      allow update: if (isTeacher() && existing().teacherId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin() || (isTeacher() && existing().teacherId == request.auth.uid);
+    }
+  }
+}

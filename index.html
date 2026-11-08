@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <script>
+      (function() {
+        var OrigWS = window.WebSocket;
+        if (OrigWS) {
+          window.WebSocket = function(url, protocols) {
+            if (typeof url === 'string' && (url.includes('vite-hmr') || protocols === 'vite-hmr' || url.includes(':24678') || url.includes('token='))) {
+              return {
+                readyState: 1,
+                OPEN: 1,
+                CLOSED: 3,
+                CONNECTING: 0,
+                CLOSING: 2,
+                send: function() {},
+                close: function() {},
+                addEventListener: function(type, fn) {
+                  if (type === 'open') setTimeout(fn, 0);
+                },
+                removeEventListener: function() {},
+                dispatchEvent: function() { return true; },
+              };
+            }
+            return new OrigWS(url, protocols);
+          };
+          window.WebSocket.prototype = OrigWS.prototype;
+          window.WebSocket.OPEN = OrigWS.OPEN;
+          window.WebSocket.CLOSED = OrigWS.CLOSED;
+          window.WebSocket.CONNECTING = OrigWS.CONNECTING;
+          window.WebSocket.CLOSING = OrigWS.CLOSING;
+        }
+        window.addEventListener('unhandledrejection', function(e) {
+          if (e && e.reason && typeof e.reason.message === 'string' && (e.reason.message.includes('WebSocket') || e.reason.message.includes('vite'))) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
+        window.addEventListener('error', function(e) {
+          if (e && typeof e.message === 'string' && (e.message.includes('WebSocket') || e.message.includes('vite'))) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
+      })();
+    </script>
+    <title>HỌC VUI MỖI NGÀY - Tự học lớp 8</title>
+    <meta name="description" content="Ứng dụng tự học, đọc bài trước khi đến lớp và rèn luyện thói quen học tập cho học sinh lớp 8. Hoạt động ngoại tuyến, thân thiện và không quảng cáo." />
+    <meta property="og:title" content="HỌC VUI MỖI NGÀY - Tự học lớp 8" />
+    <meta property="og:description" content="Ứng dụng tự học, đọc bài trước khi đến lớp và rèn luyện thói quen học tập cho học sinh lớp 8. Hoạt động ngoại tuyến, thân thiện và không quảng cáo." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#10b981" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Học Vui 8" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-sky-50/50 text-slate-800 antialiased selection:bg-sky-200 selection:text-sky-900">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

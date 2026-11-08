@@ -1,0 +1,6 @@
+{
+  "name": "Học Vui Mỗi Ngày - Lớp 8",
+  "description": "Ứng dụng tự học, đọc bài trước khi đến lớp và rèn luyện thói quen học tập cho học sinh lớp 8. Hoạt động ngoại tuyến, thân thiện và không quảng cáo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
